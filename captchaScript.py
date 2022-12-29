@@ -58,8 +58,11 @@ print(text)
 
 ###
 
-token = soup.find_all('input', {'name':'cametu'})[0]
+post_params = {'cametu' : (None,text)}
 
-post_params = {param1 : text}
-post_args = urllib.urlencode(post_params)
-fp = urllib.urlopen(url, post_args)
+rcontent = requests.post(url,data=post_params).content
+
+soup = BeautifulSoup(rcontent,"html.parser")
+results = str(soup.find_all('p')[0]).removeprefix("<p>").removesuffix(".<br/></p>")
+
+print(results)
