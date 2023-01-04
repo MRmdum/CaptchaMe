@@ -7,11 +7,12 @@ import pytesseract
 import argparse
 import cv2
 
+mySession = requests.Session()
 
 ##connection to web page
 
 url = "http://challenge01.root-me.org/programmation/ch8/"
-page = requests.get(url)
+page = mySession.get(url)
 
 #parsing
 soup = BeautifulSoup(page.content,"html.parser")
@@ -54,15 +55,20 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 ###
 
 text = pytesseract.image_to_string(Image.open(filename))
-print(text)
+text = text.replace('\n', '').replace(' ', '').replace(',', '').replace('\'', '')
 
+print(text)
 ###
 
-post_params = {'cametu' : (None,text)}
+post_params = {'cametu' : text}
+headers = {'Content-Type' : 'application/x-www-form-urlencoded'}
+cookies ={'PHPSESSID': mySession.cookies.get('PHPSESSID')}
 
-rcontent = requests.post(url,data=post_params).content
+rcontent = mySession.post(url,data=post_params,cookies =cookies)
 
-soup = BeautifulSoup(rcontent,"html.parser")
+soup = BeautifulSoup(rcontent.content,"html.parser")
 results = str(soup.find_all('p')[0]).removeprefix("<p>").removesuffix(".<br/></p>")
 
 print(results)
+
+#flag: dtePZJgVAfaU
